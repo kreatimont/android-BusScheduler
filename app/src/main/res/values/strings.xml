@@ -1,0 +1,31 @@
+<resources>
+    <string name="app_name">Bus Schedule</string>
+
+    <!-- API -->
+    <string name="base_url">http://smartbus.gmoby.org/web/index.php/api/trips</string>
+    <string name="request_template" formatted="false">"http://smartbus.gmoby.org/web/index.php/api/trips?from_date=%s&amp;to_date=%s"</string>
+    <string name="param_from">"?from_date="</string>
+    <string name="param_to">"?to_date="</string>
+
+    <string name="test_request">http://smartbus.gmoby.org/web/index.php/api/trips?from_date=20150101?to_date=20180301</string>
+
+    <!--String res-->
+    <string name="btn_send_txt">Получить расписание</string>
+    <string name="date_format_error">Некорректный формат даты</string>
+    <string name="end_hint">Конец периода (yyyy-mm-dd)</string>
+    <string name="start_hint">Начало периода (yyyy-mm-dd)</string>
+    <string name="title_input">Введите желаемый период:</string>
+    <string name="price_template">%d грн.</string>
+    <string name="read_error">Ошибка обработки ответа сервера</string>
+    <string name="load_error">Подключение к интернету отстутсвует</string>
+    <string name="clear_database">Очистить базу данных</string>
+    <string name="empty_stub">На заданный период маршруты не найдены.</string>
+    <string name="path_time_template">В пути: %s</string>
+    <string name="detailed_text_price">Цена билета:</string>
+    <string name="detailed_text_info">Общая информация:</string>
+    <string name="detailed_text_to_info">Информация по приезду:</string>
+    <string name="detailed_text_to_time">Время приезда:</string>
+    <string name="detailed_text_from_info">Информация по выезду:</string>
+    <string name="detailed_text_from_time">Время выезда:</string>
+
+</resources>
