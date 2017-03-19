@@ -13,6 +13,8 @@ import com.example.kreatimont.smartbusschedule.model.ScheduleItem;
 
 import io.realm.RealmResults;
 
+import static com.example.kreatimont.smartbusschedule.DateConverter.convertDateToString;
+
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
 
@@ -61,11 +63,11 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         }
 
         void bind(ScheduleItem scheduleItem) {
-            fromCity.setText(scheduleItem.getFromCityString());
-            toCity.setText(scheduleItem.getToCityString());
+            fromCity.setText(scheduleItem.getFromCity().getName());
+            toCity.setText(scheduleItem.getToCity().getName());
 
-            fromDate.setText(MainActivity.convertDateToString(scheduleItem.getFromDate()));
-            toDate.setText(MainActivity.convertDateToString(scheduleItem.getToDate()));
+            fromDate.setText(convertDateToString(scheduleItem.getFromDate()));
+            toDate.setText(convertDateToString(scheduleItem.getToDate()));
 
             fromTime.setText(scheduleItem.getFromTime().substring(0,5));
             toTime.setText(scheduleItem.getToTime().substring(0,5));

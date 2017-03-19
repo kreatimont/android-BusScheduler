@@ -1,6 +1,8 @@
 package com.example.kreatimont.smartbusschedule.model;
 
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.Date;
 
 import io.realm.RealmObject;
@@ -13,36 +15,53 @@ public class ScheduleItem extends RealmObject {
 
     private int busId;
 
-    private String fromCityString;
-    private String toCityString;
-
-    private int fromCityHighlight;
-    private int toCityHighlight;
-
+    @SerializedName("from_date")
     private Date fromDate;
+    @SerializedName("to_date")
     private Date toDate;
 
+    @SerializedName("from_time")
     private String fromTime;
+    @SerializedName("to_time")
     private String toTime;
 
+    @SerializedName("from_info")
     private String fromInfo;
+    @SerializedName("to_info")
     private String toInfo;
 
+    @SerializedName("info")
     private String info;
+    @SerializedName("price")
     private int price;
 
+    @SerializedName("from_city")
+    private ScheduleCity fromCity;
+    @SerializedName("to_city")
+    private ScheduleCity toCity;
 
-    public ScheduleItem() {
 
+    public ScheduleItem() {}
+
+    public ScheduleCity getFromCity() {
+        return fromCity;
     }
 
-    public ScheduleItem(int id, int busId, String fromCityString, String toCityString, int fromCityHighlight, int toCityHighlight, Date fromDate, Date toDate, String fromTime, String toTime, String fromInfo, String toInfo, String info, int price) {
+    public void setFromCity(ScheduleCity fromCity) {
+        this.fromCity = fromCity;
+    }
+
+    public ScheduleCity getToCity() {
+        return toCity;
+    }
+
+    public void setToCity(ScheduleCity toCity) {
+        this.toCity = toCity;
+    }
+
+    public ScheduleItem(int id, int busId, Date fromDate, Date toDate, String fromTime, String toTime, String fromInfo, String toInfo, String info, int price, ScheduleCity fromCity, ScheduleCity toCity) {
         this.id = id;
         this.busId = busId;
-        this.fromCityString = fromCityString;
-        this.toCityString = toCityString;
-        this.fromCityHighlight = fromCityHighlight;
-        this.toCityHighlight = toCityHighlight;
         this.fromDate = fromDate;
         this.toDate = toDate;
         this.fromTime = fromTime;
@@ -51,6 +70,9 @@ public class ScheduleItem extends RealmObject {
         this.toInfo = toInfo;
         this.info = info;
         this.price = price;
+        this.fromCity = fromCity;
+        this.toCity = toCity;
+
     }
 
     public int getId() {
@@ -67,38 +89,6 @@ public class ScheduleItem extends RealmObject {
 
     public void setBusId(int busId) {
         this.busId = busId;
-    }
-
-    public String getFromCityString() {
-        return fromCityString;
-    }
-
-    public void setFromCityString(String fromCityString) {
-        this.fromCityString = fromCityString;
-    }
-
-    public String getToCityString() {
-        return toCityString;
-    }
-
-    public void setToCityString(String toCityString) {
-        this.toCityString = toCityString;
-    }
-
-    public int getFromCityHighlight() {
-        return fromCityHighlight;
-    }
-
-    public void setFromCityHighlight(int fromCityHighlight) {
-        this.fromCityHighlight = fromCityHighlight;
-    }
-
-    public int getToCityHighlight() {
-        return toCityHighlight;
-    }
-
-    public void setToCityHighlight(int toCityHighlight) {
-        this.toCityHighlight = toCityHighlight;
     }
 
     public Date getFromDate() {
@@ -163,5 +153,21 @@ public class ScheduleItem extends RealmObject {
 
     public void setPrice(int price) {
         this.price = price;
+    }
+
+    @Override
+    public String toString() {
+        return "[id: " + this.id + "," +
+                " from_date: " + this.fromDate + "," +
+                " to_date: " + this.toDate + "," +
+                " from_time: " + this.fromTime + "," +
+                " to_time: " + this.toTime+ "," +
+                " from_info: " + this.fromInfo + "," +
+                " to_info: " + this.toInfo+ "," +
+                " from_city: " + this.fromCity.toString() + "," +
+                " to_city: " + this.toCity.toString() + "," +
+                " bus_id: " + this.busId + "," +
+                " info: " + this.info + "," +
+                " price: " + this.price+ "]";
     }
 }

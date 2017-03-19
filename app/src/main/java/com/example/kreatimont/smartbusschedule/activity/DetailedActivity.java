@@ -9,6 +9,9 @@ import com.example.kreatimont.smartbusschedule.R;
 import com.example.kreatimont.smartbusschedule.model.ScheduleItem;
 
 import io.realm.Realm;
+import io.realm.RealmConfiguration;
+
+import static com.example.kreatimont.smartbusschedule.DateConverter.convertDateToString;
 
 public class DetailedActivity extends AppCompatActivity {
 
@@ -25,7 +28,10 @@ public class DetailedActivity extends AppCompatActivity {
 
         int scheduleId = getIntent().getIntExtra(EXTRA_ID, 0);
 
-        Realm realm = Realm.getDefaultInstance();
+        RealmConfiguration config = new RealmConfiguration.Builder()
+                .deleteRealmIfMigrationNeeded()
+                .build();
+        Realm realm = Realm.getInstance(config);
         try {
             ScheduleItem scheduleItem = realm.where(ScheduleItem.class).equalTo("id", scheduleId).findFirst();
             setUpData(scheduleItem);
@@ -64,11 +70,11 @@ public class DetailedActivity extends AppCompatActivity {
 
     private void setUpData(ScheduleItem scheduleItem) {
 
-        fromCity.setText(scheduleItem.getFromCityString());
-        toCity.setText(scheduleItem.getToCityString());
+        fromCity.setText(scheduleItem.getFromCity().getName());
+        toCity.setText(scheduleItem.getToCity().getName());
 
-        fromDate.setText(MainActivity.convertDateToString(scheduleItem.getFromDate()));
-        toDate.setText(MainActivity.convertDateToString(scheduleItem.getToDate()));
+        fromDate.setText(convertDateToString(scheduleItem.getFromDate()));
+        toDate.setText(convertDateToString(scheduleItem.getToDate()));
 
         fromTime.setText(scheduleItem.getFromTime());
         toTime.setText(scheduleItem.getToTime());

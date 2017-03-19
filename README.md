@@ -12,6 +12,7 @@ Green Moby Task
 **External libraries**
 
 * [OkHttp](http://square.github.io/okhttp/)
+* [GSON](https://github.com/google/gson)
 * [PatternedTextWatcher](https://github.com/zsavely/PatternedTextWatcher)
 
 ***

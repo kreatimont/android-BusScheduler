@@ -17,7 +17,10 @@ import com.example.kreatimont.smartbusschedule.model.ScheduleItem;
 import java.util.Date;
 
 import io.realm.Realm;
+import io.realm.RealmConfiguration;
 import io.realm.RealmResults;
+
+import static com.example.kreatimont.smartbusschedule.DateConverter.convertStringToDate;
 
 public class ListActivity extends AppCompatActivity {
 
@@ -42,10 +45,13 @@ public class ListActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
 
-        currentDateFrom = MainActivity.convertStringToDate(intent.getStringExtra(EXTRA_DATE_FROM));
-        currentDateTo = MainActivity.convertStringToDate(intent.getStringExtra(EXTRA_DATE_TO));
+        currentDateFrom = convertStringToDate(intent.getStringExtra(EXTRA_DATE_FROM));
+        currentDateTo = convertStringToDate(intent.getStringExtra(EXTRA_DATE_TO));
 
-        mRealm = Realm.getDefaultInstance();
+        RealmConfiguration config = new RealmConfiguration.Builder()
+                .deleteRealmIfMigrationNeeded()
+                .build();
+        mRealm = Realm.getInstance(config);
 
         initUI();
     }

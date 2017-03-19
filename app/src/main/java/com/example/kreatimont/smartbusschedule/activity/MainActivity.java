@@ -16,6 +16,8 @@ import android.widget.Toast;
 
 import com.example.kreatimont.smartbusschedule.R;
 import com.example.kreatimont.smartbusschedule.model.ScheduleItem;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.szagurskii.patternedtextwatcher.PatternedTextWatcher;
 
 import org.json.JSONArray;
@@ -23,20 +25,21 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.Date;
-import java.util.Locale;
+import java.util.List;
 
 import io.realm.Realm;
-import io.realm.RealmList;
+import io.realm.RealmConfiguration;
 import io.realm.RealmResults;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+
+import static com.example.kreatimont.smartbusschedule.DateConverter.convertStringToDate;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -59,7 +62,11 @@ public class MainActivity extends AppCompatActivity {
         httpClient = new OkHttpClient();
 
         Realm.init(this);
-        mRealm = Realm.getDefaultInstance();
+
+        RealmConfiguration config = new RealmConfiguration.Builder()
+                .deleteRealmIfMigrationNeeded()
+                .build();
+        mRealm = Realm.getInstance(config);
 
         initUI();
     }
@@ -181,11 +188,29 @@ public class MainActivity extends AppCompatActivity {
                 if(!response.isSuccessful()) {
                     throw new IOException("Unexpected code " + response);
                 } else {
-                    String responseData = response.body().string();
                     try {
-                        parseAndSaveJsonData(new JSONObject(responseData));
-                        startListActivity(enteredDateFrom, enteredDateTo);
+                        JSONObject jsonObject = new JSONObject(response.body().string());
+                        if(jsonObject.getBoolean("success")) {
+
+                            JSONArray data = jsonObject.getJSONArray("data");
+                            Type dataListType = new TypeToken<Collection<ScheduleItem>>() {}.getType();
+                            final List<ScheduleItem> schedules = new Gson().fromJson(String.valueOf(data), dataListType);
+
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mRealm.beginTransaction();
+                                    mRealm.copyToRealmOrUpdate(schedules);
+                                    mRealm.commitTransaction();
+                                }
+                            });
+
+                            startListActivity(enteredDateFrom, enteredDateTo);
+                        } else {
+                            Toast.makeText(MainActivity.this, R.string.read_error, Toast.LENGTH_SHORT).show();
+                        }
                     } catch (JSONException e) {
+                        Toast.makeText(MainActivity.this, R.string.read_error, Toast.LENGTH_SHORT).show();
                         e.printStackTrace();
                     }
                 }
@@ -203,71 +228,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void parseAndSaveJsonData(JSONObject jsonObject) {
-
-        try {
-
-            boolean isSuccess = jsonObject.has("success") && jsonObject.getBoolean("success");
-
-            JSONArray dataArray = jsonObject.has("data") ? jsonObject.getJSONArray("data") : null;
-
-            if(isSuccess && dataArray != null) {
-
-                final RealmList<ScheduleItem> scheduleItemRealmList = new RealmList<>();
-
-                for(int i = 0; i < dataArray.length(); i++) {
-
-                    JSONObject data = dataArray.getJSONObject(i);
-
-                    int id = data.has("id") ? data.getInt("id") : -1;
-                    int busId = data.has("bus_id") ? data.getInt("bus_id") : -1;
-
-                    int price = data.has("price") ? data.getInt("price") : -1;
-
-                    Date fromDate = convertStringToDate(data.getString("from_date"));
-                    Date toDate = convertStringToDate(data.getString("to_date"));
-
-                    String fromTime = data.has("from_time") ? data.getString("from_time") : "none";
-                    String toTime = data.has("to_time") ? data.getString("to_time") : "none";
-
-                    String fromInfo = data.has("from_info") ? data.getString("from_info") : "none";
-                    String toInfo = data.has("to_info") ? data.getString("to_info") : "none";
-                    String info = data.has("info") ? data.getString("info") : "none";
-
-                    JSONObject fromCity = data.has("from_city") ? data.getJSONObject("from_city") : null;
-                    JSONObject toCity = data.has("to_city") ? data.getJSONObject("to_city") : null;
-
-                    String fromCityName = fromCity.has("name") ? fromCity.getString("name") : "none";
-                    String toCityName = toCity.has("name") ? toCity.getString("name") : "none";
-
-                    int fromCityHighlight = fromCity.has("highlight") ? fromCity.getInt("highlight") : -1;
-                    int toCityHighlight = toCity.has("highlight") ? toCity.getInt("highlight") : -1;
-
-                    scheduleItemRealmList.add(new ScheduleItem(id, busId,
-                            fromCityName, toCityName,
-                            fromCityHighlight, toCityHighlight,
-                            fromDate, toDate,
-                            fromTime, toTime,
-                            fromInfo, toInfo,
-                            info, price));
-                }
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        mRealm.beginTransaction();
-                        mRealm.copyToRealmOrUpdate(scheduleItemRealmList);
-                        mRealm.commitTransaction();
-                    }
-                });
-            }
-
-        } catch (Exception e) {
-            Toast.makeText(MainActivity.this, R.string.read_error, Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
-        }
-    }
-
     private void startListActivity(String dateFrom, String dateTo) {
 
         Intent intent = new Intent(MainActivity.this, ListActivity.class);
@@ -278,18 +238,4 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    /*Date converters*/
-    public static Date convertStringToDate(String string) {
-
-        try {
-            return new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(string);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public static String convertDateToString(Date date) {
-        return DateFormat.getDateInstance(SimpleDateFormat.LONG, new Locale("ru")).format(date);
-    }
 }
